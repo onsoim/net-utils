@@ -143,7 +143,7 @@ class attack:
         self.wrong_END('B1 B2 B3 B4 B5 B6')
         self.wrong_END('B1 B2 B3 B4 B5 B6 B7')
 
-    # send multiframe message with open end
+    # send multiframe message without termination
     def nonTERMINATE(counter = -1):
         print("''' non terminate attack '''")
 
