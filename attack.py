@@ -4,6 +4,7 @@ from UAVCAN.PAYLOAD import UAVCAN_PAYLOAD
 # pip3 install python-can
 import can
 
+
 class CAN:
     def build(interface, can_id, payload):
         return f'{interface}  {can_id}   [{ len(payload.split(" ")) }]  {payload}'
