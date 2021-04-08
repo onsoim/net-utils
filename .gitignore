@@ -2,3 +2,7 @@
 # Python build cache files
 __pycache__
 *.pyc
+
+# Data files
+*.json
+*.txt
