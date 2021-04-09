@@ -6,8 +6,8 @@ import sys
 
 
 def test(data, attack_type):
-    # bus = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
-    bus = "For testing"
+    bus = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
+    # bus = "For testing"
     atk = attack(bus, data)
 
     if   attack_type == "CRC"  : atk.wrong_CRC()
