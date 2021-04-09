@@ -23,12 +23,12 @@ class attack:
                 aids_service.add(aid)
             else:
                 aids_else.add(aid)
-
+        '''
         for aid in aids_service:
             print(f'AID={aid:#010x}', end=' ==> ')
             self.AID.dissect_aid_service(aid)
         print()
-
+        '''
         self.aids_service   = list(aids_service)
         self.aids_else      = list(aids_else)
 
@@ -129,7 +129,7 @@ class attack:
     # send singleframe message with open end
     def wrong_END(self, payload = None, padding = True, counter = -1):
         while counter:
-            payload = [ f'{_:02X}' for _ in os.urandom(random.randint(0, 7)) ]
+            payload = [ '{:02X}'.format(_) for _ in os.urandom(random.randint(0, 7)) ]
 
             if padding: payload += ["00" for _ in range(7 - len(payload))]
             msg = can.Message(
