@@ -1,38 +1,32 @@
 from attack import attack
 
+import argparse
+import can
 import sys
 
 
-def usage():
-    print('python3 main.py [attack type] [attack options]')
+def test(data, attack_type):
+    # bus = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
+    bus = "For testing"
+    atk = attack(bus, data)
 
-    print('1. Wrong CRC')
-    print('$ python3 main.py 1 10')
-
-    print('2. Wrong END')
-    print('$ python3 main.py 2')
-
-    print('3. non Termination')
-    print('$ python3 main.py 3')
-
-    print('4. DoS')
-    print('$ python3 main.py 4')
-
-    print('5. Fuzz')
-    print('$ python3 main.py 5')
+    if   attack_type == "CRC"  : atk.wrong_CRC()
+    elif attack_type == "END"  : atk.wrong_END()
+    elif attack_type == "NON"  : atk.nonTERMINATE()
+    elif attack_type == "DOS"  : atk.DoS()
+    elif attack_type == "FUZZ" : atk.Fuzz()
 
 
 def main():
-    if len(sys.argv) < 2:
-        usage()
-        sys.exit()
+    parser = argparse.ArgumentParser()
     
-    type = sys.argv[1]
-    if   type == "1": attack().wrong_CRC()
-    elif type == "2": attack().wrong_END()
-    elif type == "3": attack.nonTERMINATE()
-    elif type == "4": attack.nonTERMINATE()
-    elif type == "5": attack.nonTERMINATE()
+    parser.add_argument('-a', '--attack_type', choices=[ 'CRC', 'END', 'NON', 'DOS', 'FUZZ' ], dest = 'attack_type', required=True)
+    parser.add_argument('-d', '--data', default="data/boot_idle.txt", dest = 'data', required=True)
+    parser.add_argument('-p', '--attack_parameters', dest = 'args')
+
+    args = parser.parse_args()
+
+    test(args.data, args.attack_type)
 
 
 if __name__ == "__main__":
