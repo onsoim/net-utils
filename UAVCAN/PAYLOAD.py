@@ -6,11 +6,11 @@ class UAVCAN_PAYLOAD:
         self.transfer_ID    = transfer_ID
 
     def get_tail(self):
-        return f'{(self.transfer_start << 7) + (self.transfer_end << 6) + (self.toggle << 5) + self.transfer_ID:02X}'
+        return '{:02X}'.format((self.transfer_start << 7) + (self.transfer_end << 6) + (self.toggle << 5) + self.transfer_ID)
 
     # def tail(transfer_start, transfer_end, toggle, transfer_ID):
         
 
     def random():
         import os
-        return ' '.join([ f'{i:02X}' for i in os.urandom(7) ])
+        return ' '.join([ '{:02X}'.format(i) for i in os.urandom(7) ])

