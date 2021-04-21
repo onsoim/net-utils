@@ -10,7 +10,7 @@ import time
 
 
 class attack:
-    def __init__(self, bus, data, interval):
+    def __init__(self, bus, data, data_exclude, interval):
         self.AID        = UAVCAN_AID()
         self.bus        = bus
         self.interval   = interval
@@ -25,12 +25,16 @@ class attack:
                 aids_service.add(aid)
             else:
                 aids_else.add(aid)
-        '''
-        for aid in aids_service:
-            print(f'AID={aid:#010x}', end=' ==> ')
-            self.AID.dissect_aid_service(aid)
-        print()
-        '''
+        
+        if data_exclude:
+            with open(data_exclude) as f: lines = f.readlines()
+
+            for aid in [ int(_.split()[2], 16) for _ in lines ]:
+                if self.AID.get_value(aid, 1, 7): # is service?
+                    aids_service.discard(aid)
+                else:
+                    aids_else.discard(aid)
+
         self.aids_service   = list(aids_service)
         self.aids_else      = list(aids_else)
 
