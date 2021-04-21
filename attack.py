@@ -10,9 +10,10 @@ import time
 
 
 class attack:
-    def __init__(self, bus, data):
+    def __init__(self, bus, data, interval):
         self.AID        = UAVCAN_AID()
         self.bus        = bus
+        self.interval   = interval
         # can.rc['interface'] = 'socketcan_native'
 
         with open(data) as f: lines = f.readlines()
@@ -140,7 +141,7 @@ class attack:
             )
             # print(msg)
             self.bus.send(msg)
-            time.sleep(0.05)
+            time.sleep(self.interval)
             if counter != -1: counter -= 1
 
     def wrong_END_test(self):
@@ -180,7 +181,7 @@ class attack:
             )
             # print(msg)
             self.bus.send(msg)
-            time.sleep(0.05)
+            time.sleep(self.interval)
             if counter != -1: counter -= 1
 
     def DoS(self, counter = -1):
@@ -200,7 +201,7 @@ class attack:
                     data            = b'\xc0'
                 )
                 self.bus.send(msg)
-                time.sleep(0.05)
+                time.sleep(self.interval)
                 if counter != -1: counter -= 1
 
     def Fuzz(self, counter = -1):
@@ -213,7 +214,7 @@ class attack:
             )
             # print(msg)
             self.bus.send(msg)
-            time.sleep(0.05)
+            time.sleep(self.interval)
             if counter != -1: counter -= 1
 
 
